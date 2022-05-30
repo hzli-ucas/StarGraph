@@ -1,0 +1,8 @@
+torch>=1.6
+torch-geometric>=1.6.0
+numpy>=1.16.0
+pandas>=0.24.0
+ogb>=1.2.4
+tqdm
+tensorboardx
+pickle
