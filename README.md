@@ -1,42 +1,38 @@
-# StarGraph for [OGB WikiKG 2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2)
+# StarGraph for [OGB WikiKG 2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2) and [FB15k-237](https://deepai.org/dataset/fb15k-237)
+Conventional representation learning algorithms for knowledge graphs (KG) map each entity to a unique embedding vector, ignoring the rich information contained in the neighborhood. We propose a method named StarGraph, which gives a novel way to utilize the neighborhood information for large-scale knowledge graphs to obtain entity representations. An incomplete two-hop neighborhood subgraph for each target node is at first generated, then processed by a modified self-attention network to obtain the entity representation, which is used to replace the entity embedding in conventional methods. We achieved SOTA performance on ogbl-wikikg2 and got competitive results on fb15k-237. The experimental results proves that StarGraph is efficient in parameters, and the improvement made on ogbl-wikikg2 demonstrates its great effectiveness of representation learning on large-scale knowledge graphs.
 
-Conventional representation learning algorithms for knowledge graphs (KG) map each entity to a unique embedding vector, ignoring the rich information contained in neighbor entities. We propose a method named StarGraph, which gives a novel way to utilize the neighborhood information for largescale knowledge graphs to get better entity representations. The core idea is to divide the neighborhood information into different levels for sampling and processing, where the generalized coarse-grained information and unique fine-grained information are combined to generate an efficient subgraph for each node. In addition, a self-attention network is proposed to process the subgraphs and get the entity representations, which are used to replace the entity embeddings in conventional methods. The proposed method achieves the best results on the ogbl-wikikg2 dataset, which validates the effectiveness of it.
-
-|Method|Test MRR|Validation MRR|#Params|
-|-|-|-|-|
-|**StarGraph + TripleRE'**|**0.7201 ± 0.0011**|**0.7288 ± 0.0008**|86,762,146|
-|TranS + NodePiece|0.6939 ± 0.0011|0.7058 ± 0.0018|38,430,804|
-|TripleRE + NodePiece|0.6866 ± 0.0014|0.6955 ± 0.0008|36,421,802|
-|InterHT + NodePiece|0.6779 ± 0.0018|0.6893 ± 0.0015|19,215,402|
-|ComplEx-RP (50dim)|0.6392 ± 0.0045|0.6561 ± 0.0070|250,167,400|
-|NodePiece + AutoSF|0.5703 ± 0.0035|0.5806 ± 0.0047|6,860,602|
-|AutoSF|0.5458 ± 0.0052|0.5510 ± 0.0063|500,227,800|
-|PairRE (200dim)|0.5208 ± 0.0027|0.5423 ± 0.0020|500,334,800|
-|RotatE (250dim)|0.4332 ± 0.0025|0.4353 ± 0.0028|1,250,435,750|
-|TransE (500dim)|0.4256 ± 0.0030|0.4272 ± 0.0030|1,250,569,500|
-|ComplEx (250dim)|0.4027 ± 0.0027|0.3759 ± 0.0016|1,250,569,500|
-
-
-+ This is the code to run StarGraph on the OGB WikiKG 2 dataset. 
-Part of the code is based on [NodePiece repo](https://github.com/migalkin/NodePiece/tree/main/ogb).
-+ A more comprehensive description of the method can be found at [StarGraph: A Coarse-to-Fine Representation Method for Large-Scale Knowledge Graph](https://arxiv.org/abs/2205.14209)
+![image](preview/ogb_wikikg2.png)
+![image](preview/fb15k_237.png)
++ A more comprehensive description of the method can be found at [StarGraph: Knowledge Representation Learning based on Incomplete Two-hop Subgraph](https://arxiv.org/abs/2205.14209)
 
 ## Running
 1. Install the requirements from the `requirements.txt`
-2. Prepare the file storing the subgraphs as follows:  
-&emsp;&emsp; a. Download the file of anchors using the `download.sh` script, provided by [NodePiece](https://github.com/migalkin/NodePiece/blob/main/ogb/download.sh)  
-&emsp;&emsp; b. Generate the file of neighbors by running `python create_nborfile.py`
-3. Run the `run_ogb.sh` script to reproduce the results of **StarGraph + TripleRE'** reported above
+2. Check the datasets. Nothing needs to be done if everything is in position:  
+&emsp; a. OGB WikiKG 2 will be automatically downloaded calling ogb.linkproppred.LinkPropPredDataset, which might take a long time (line\#182 in `processors.py`)  
+&emsp; b. FB15k-237 has been provided in `./dataset/fb15k-237/`
+1. Run the following commands to reproduce the results of **StarGraph + TripleRE'** reported in the paper  
+
+### For Results in Table 4 on OGB WikiKG 2  
+```python run.py --print_on_screen --cuda --do_train -b 512 -n 64 -adv --model TripleRE -lr 0.0001 --valid_steps 60000 --log_steps 60000 --max_steps 500000 --do_valid --do_test --test_log_steps 60000 --gamma 6.0 -randomSeed 0 -a 2 --drop 0.05 --uni_weight --inverse --val_inverse -u 0.1 --anchor_size 20000 -ancs 20 -d 256 -path```
+
+```python run.py --print_on_screen --cuda --do_train -b 512 -n 64 -adv --model TripleRE -lr 0.00005 --valid_steps 60000 --log_steps 60000 --max_steps 500000 --do_valid --do_test --test_log_steps 60000 --gamma 6.0 -randomSeed 0 -a 2 --drop 0.05 --uni_weight --inverse --val_inverse -u 0.1 --anchor_size 80000 -ancs 20 -d 512 --head_dim 8 --mlp_ratio 2 -path```
+
+```python run.py --print_on_screen --cuda --do_train -b 512 -n 64 -adv --model TripleRE -lr 0.0002 --valid_steps 60000 --log_steps 60000 --max_steps 500000 --do_valid --do_test --test_log_steps 60000 --gamma 6.0 -randomSeed 0 -a 2 --drop 0.05 --uni_weight --inverse --val_inverse -u 0.1 --anchor_size 20000 -ancs 20 -nbors 5 -center --node_dim 32 -d 512 --head_dim 8 --mlp_ratio 2```
+
+### For Results in Table 5 on FB15k-237  
+```python run.py --print_on_screen --cuda --do_train -b 512 -n 64 -adv --dataset fb15k-237 --model TripleRE -lr 0.0005 --valid_steps 20000 --log_steps 20000 --max_steps 100000 --do_valid --do_test --test_log_steps 20000 --gamma 6.0 -randomSeed 0 -a 2 --drop 0.05 --true_negative -u 1 --anchor_size 1 -ancs 20 -d 512 -path --head_dim 8 --mlp_ratio 2 -skip 0.2```
+
+```python run.py --print_on_screen --cuda --do_train -b 512 -n 64 -adv --dataset fb15k-237 --model TripleRE -lr 0.0005 --valid_steps 20000 --log_steps 20000 --max_steps 100000 --do_valid --do_test --test_log_steps 20000 --gamma 6.0 -randomSeed 0 -a 2 --drop 0.05 --true_negative -u 1 --anchor_size 1 -ancs 20 -d 512 -path --head_dim 8 --mlp_ratio 2 -skip 0.5```
 
 ## Citation
 If you find this work useful, please consider citing the paper:
 ```
 @misc{li2022stargraph,
-      title={StarGraph: A Coarse-to-Fine Representation Method for Large-Scale Knowledge Graph}, 
-      author={Hongzhu Li and Xiangrui Gao and Yafeng Deng},
-      year={2022},
-      eprint={2205.14209},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+    title={StarGraph: Knowledge Representation Learning based on Incomplete Two-hop Subgraph},
+    author={Hongzhu Li and Xiangrui Gao and Linhui Feng and Yafeng Deng and Yuhui Yin},
+    year={2022},
+    eprint={2205.14209},
+    archivePrefix={arXiv},
+    primaryClass={cs.AI}
 }
 ```
