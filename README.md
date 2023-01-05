@@ -3,7 +3,7 @@ Conventional representation learning algorithms for knowledge graphs (KG) map ea
 
 ![image](preview/ogb_wikikg2.png)
 ![image](preview/fb15k_237.png)
-+ A more comprehensive description of the method can be found at [StarGraph: Knowledge Representation Learning based on Incomplete Two-hop Subgraph](https://arxiv.org/abs/2205.14209)
++ A more comprehensive description of the method can be found at [StarGraph: Knowledge Representation Learning based on Incomplete Two-hop Subgraph](https://arxiv.org/abs/2205.14209) ([Under review](https://openreview.net/forum?id=mTOB_VK_BWk) in ICLR 2023 with OpenReview platform, submitted on 28 Sept 2022).
 
 ## Running
 1. Install the requirements from the `requirements.txt`
@@ -33,6 +33,6 @@ If you find this work useful, please consider citing the paper:
     year={2022},
     eprint={2205.14209},
     archivePrefix={arXiv},
-    primaryClass={cs.AI}
+    primaryClass={cs.CL}
 }
 ```
